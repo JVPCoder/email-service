@@ -1,8 +1,8 @@
 import express, { json } from 'express';
 import cors from 'cors';
-import userRoutes from './routes/userRoutes';
-import draftRoutes from './routes/draftRoutes';
-import emailRoutes from './routes/emailRoutes';
+import userRoutes from './routes/userRoutes.js';
+import draftRoutes from './routes/draftRoutes.js';
+import emailRoutes from './routes/emailRoutes.js';
 
 const app = express();
 

@@ -1,7 +1,7 @@
 {
   "name": "email-service",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "dependencies": {
     "accepts": "^2.0.0",
     "bcryptjs": "^3.0.2",
@@ -101,12 +101,26 @@
     "whatwg-url": "^14.2.0",
     "wrappy": "^1.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "nodemon": "^2.0.22"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "nodemon backend/server.js",
+    "dev:client": "npm --prefix frontend run dev",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JVPCoder/email-service.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "JVPCoder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JVPCoder/email-service/issues"
+  },
+  "homepage": "https://github.com/JVPCoder/email-service#readme",
   "description": ""
 }

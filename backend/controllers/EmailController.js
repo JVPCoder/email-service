@@ -1,7 +1,7 @@
-const Email = require('../models/Email');
-const Draft = require('../models/Draft');
+import Email from '../models/Email.js';
+import Draft from '../models/Draft.js';
 
-exports.sendEmail = async (req, res) => {
+export async function sendEmail(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;
 
   if (!assunto || !emailDestinatario || !corpo) {
@@ -40,11 +40,11 @@ exports.sendEmail = async (req, res) => {
       erro: err.message
     });
   }
-};
+}
 
-exports.sendEmailFromDraft = async (req, res) => {
+export async function sendEmailFromDraft(req, res) {
   try {
-    const draft = await Draft.findOne({ _id: req.params.id, userId: req.userId });
+    const draft = await _findOne({ _id: req.params.id, userId: req.userId });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -85,11 +85,11 @@ exports.sendEmailFromDraft = async (req, res) => {
       erro: err.message
     });
   }
-};
+}
 
-exports.markAsRead = async (req, res) => {
+export async function markAsRead(req, res) {
   try {
-    const email = await Email.findOne({ _id: req.params.id, userId: req.userId });
+    const email = await findOne({ _id: req.params.id, userId: req.userId });
 
     if (!email) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
@@ -116,11 +116,11 @@ exports.markAsRead = async (req, res) => {
       erro: err.message
     });
   }
-};
+}
 
-exports.getAllEmails = async (req, res) => {
+export async function getAllEmails(req, res) {
   try {
-    const emails = await Email.find({ userId: req.userId });
+    const emails = await find({ userId: req.userId });
 
     if (!emails.length) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
@@ -144,4 +144,4 @@ exports.getAllEmails = async (req, res) => {
       erro: err.message
     });
   }
-};
+}

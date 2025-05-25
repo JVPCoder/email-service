@@ -1,4 +1,4 @@
-import Draft, { findOne, find, findOneAndDelete } from '../models/Draft';
+import Draft from '../models/Draft.js';
 
 export async function createDraft(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;

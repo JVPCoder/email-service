@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const draftSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User.js', required: true },
   assunto: { type: String, maxlength: 255 },
   emailDestinatario: {
     type: String,
@@ -10,4 +10,4 @@ const draftSchema = new Schema({
   corpo: { type: String }
 }, { timestamps: true });
 
-export default model('Draft', draftSchema);
+export default model('Draft.js', draftSchema);

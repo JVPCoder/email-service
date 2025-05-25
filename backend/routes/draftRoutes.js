@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const router = Router();
-import { createDraft, updateDraft, getDraft, getAllDrafts, deleteDraft } from '../controllers/DraftController';
-import auth from '../middlewares/auth';
-import methodNotAllowed from '../middlewares/methodNotAllowed';
+import { createDraft, updateDraft, getDraft, getAllDrafts, deleteDraft } from '../controllers/DraftController.js';
+import auth from '../middlewares/auth.js';
+import methodNotAllowed from '../middlewares/methodNotAllowed.js';
 
 // Criar rascunho
 router.post('/rascunhos', auth, createDraft);

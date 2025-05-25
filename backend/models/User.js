@@ -6,4 +6,4 @@ const userSchema = new Schema({
   senha: { type: String, required: true, minlength: 8, maxlength: 255 }
 }, { timestamps: true });
 
-export default model('User', userSchema);
+export default model('User.js', userSchema);

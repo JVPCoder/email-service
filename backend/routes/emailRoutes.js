@@ -1,23 +1,23 @@
-const express = require('express');
-const router = express.Router();
-const emailController = require('../controllers/EmailController');
-const auth = require('../middlewares/auth');
-const methodNotAllowed = require('../middlewares/methodNotAllowed');
+import { Router } from 'express';
+const router = Router();
+import { sendEmail, sendEmailFromDraft, markAsRead, getAllEmails } from '../controllers/EmailController.js';
+import auth from '../middlewares/auth.js';
+import methodNotAllowed from '../middlewares/methodNotAllowed.js';
 
 // Enviar email (via objeto JSON)
-router.post('/emails', auth, emailController.sendEmail);
+router.post('/emails', auth, sendEmail);
 
 // Enviar email a partir de rascunho
-router.post('/emails/:id', auth, emailController.sendEmailFromDraft);
+router.post('/emails/:id', auth, sendEmailFromDraft);
 
 // Marcar email como lido
-router.put('/emails/:id', auth, emailController.markAsRead);
+router.put('/emails/:id', auth, markAsRead);
 
 // Listar emails
-router.get('/emails', auth, emailController.getAllEmails);
+router.get('/emails', auth, getAllEmails);
 
 // Proteção contra métodos não permitidos
 router.all('/emails', methodNotAllowed(['POST', 'GET']));
 router.all('/emails/:id', methodNotAllowed(['POST', 'PUT']));
 
-module.exports = router;
+export default router;

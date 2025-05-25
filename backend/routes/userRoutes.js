@@ -1,21 +1,22 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/UserController');
-const auth = require('../middlewares/auth');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
-const methodNotAllowed = require('../middlewares/methodNotAllowed');
+import { Router } from 'express';
+const router = Router();
+import { register, login } from '../controllers/UserController.js';
+import auth from '../middlewares/auth.js';
+import bcrypt from 'bcryptjs';
+const { hash, compare } = bcrypt;
+import User from '../models/User.js';
+import methodNotAllowed from '../middlewares/methodNotAllowed.js';
 
 // Cadastro de usuário
-router.post('/usuarios', userController.register);
+router.post('/usuarios', register);
 
 // Login de usuário
-router.post('/login', userController.login);
+router.post('/login', login);
 
 // Obter perfil do usuário autenticado
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('-senha');
+    const user = await findById(req.userId).select('-senha');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuario não encontrado' });
@@ -56,13 +57,13 @@ router.put('/usuarios', auth, async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.userId);
+    const user = await findById(req.userId);
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuario não encontrado' });
     }
 
     user.nome = nome;
-    user.senha = await bcrypt.hash(senha, 10);
+    user.senha = await hash(senha, 10);
     await user.save();
 
     res.status(200).json({
@@ -83,7 +84,7 @@ router.put('/usuarios', auth, async (req, res) => {
 // Deletar usuário
 router.delete('/usuarios', auth, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.userId);
+    const user = await findByIdAndDelete(req.userId);
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuario não encontrado' });
@@ -106,4 +107,4 @@ router.all('/login', methodNotAllowed(['POST']));
 router.all('/logout', methodNotAllowed(['POST']));
 router.all('/me', methodNotAllowed(['GET']));
 
-module.exports = router;
+export default router;
