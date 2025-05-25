@@ -12,7 +12,7 @@ export async function createDraft(req, res) {
 
   try {
     const draft = new Draft({
-      userId: req.userId,
+      userId: req.user.id,
       assunto,
       emailDestinatario,
       corpo
@@ -30,10 +30,8 @@ export async function createDraft(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao criar rascunho:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
@@ -55,7 +53,7 @@ export async function updateDraft(req, res) {
   }
 
   try {
-    const draft = await findOne({ _id: rascunhoId, userId: req.userId });
+    const draft = await Draft.findOne({ _id: rascunhoId, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -77,16 +75,14 @@ export async function updateDraft(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao atualizar rascunho:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function getDraft(req, res) {
   try {
-    const draft = await findOne({ _id: req.params.id, userId: req.userId });
+    const draft = await Draft.findOne({ _id: req.params.id, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -102,16 +98,14 @@ export async function getDraft(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao buscar rascunho:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function getAllDrafts(req, res) {
   try {
-    const drafts = await find({ userId: req.userId });
+    const drafts = await Draft.find({ userId: req.user.id });
 
     res.status(200).json({
       mensagem: "Rascunho localizado",
@@ -123,16 +117,14 @@ export async function getAllDrafts(req, res) {
       }))
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao buscar rascunhos:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function deleteDraft(req, res) {
   try {
-    const draft = await findOneAndDelete({ _id: req.params.id, userId: req.userId });
+    const draft = await Draft.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -140,9 +132,7 @@ export async function deleteDraft(req, res) {
 
     res.status(200).json({ mensagem: "Rascunho deletado com sucesso" });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao deletar rascunho:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }

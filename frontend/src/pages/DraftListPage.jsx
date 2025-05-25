@@ -1,67 +1,65 @@
-import { useState, useEffect } from 'react';
-import api from '../services/api.js';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import Loader from '../components/Loader';
+import Toast from '../components/Toast';
 
-const DraftListPage = () => {
+function DraftListPage() {
   const [drafts, setDrafts] = useState([]);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
 
-  const navigate = useNavigate();
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
 
   useEffect(() => {
     const fetchDrafts = async () => {
       try {
-        const response = await api.get('/rascunhos');
-        setDrafts(response.data.rascunhos);
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:8080/api/rascunhos', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setDrafts(res.data.rascunhos);
       } catch (err) {
-        setError('Erro ao carregar rascunhos');
+        showToast('Erro ao buscar rascunhos.', 'error');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchDrafts();
   }, []);
 
-  const handleEdit = (draft) => {
-    navigate('/draft', { state: { draft } });
-  };
-
-  const handleSend = async (draftId) => {
-    try {
-      await api.post(`/emails/${draftId}`);
-      alert('E-mail enviado com sucesso!');
-    } catch (err) {
-      alert('Erro ao enviar e-mail');
-    }
-  };
-
-  const handleBack = () => {
-    navigate('/');
-  };
+  if (loading) return <Loader />;
 
   return (
-    <div>
-      <h2>Meus Rascunhos</h2>
-      <button onClick={handleBack}>Voltar</button>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="min-h-screen bg-gray-100 p-8">
+      {toastMessage && <Toast message={toastMessage} type={toastType} />}
+      <h2 className="text-3xl font-bold mb-6 text-gray-900">Rascunhos</h2>
 
       {drafts.length === 0 ? (
-        <p>Nenhum rascunho encontrado.</p>
+        <p className="text-gray-600">Nenhum rascunho encontrado.</p>
       ) : (
-        <ul>
+        <div className="grid gap-4">
           {drafts.map(draft => (
-            <li key={draft.rascunhold}>
-              <strong>Assunto:</strong> {draft.assunto}<br />
-              <strong>Destinatário:</strong> {draft.emailDestinatario}<br />
-              <button onClick={() => handleEdit(draft)}>Editar</button>
-              <button onClick={() => handleSend(draft.rascunhold)}>Enviar</button>
-              <hr />
-            </li>
+            <Link
+              key={draft.rascunhoId}
+              to={`/draft/${draft.rascunhoId}`}
+              className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition transform"
+            >
+              <h3 className="text-xl font-semibold text-gray-800">{draft.assunto || '(Sem assunto)'}</h3>
+              <p className="text-gray-600">Para: {draft.emailDestinatario || '(Sem destinatário)'}</p>
+              <p className="text-gray-400 text-sm mt-2">{draft.corpo.slice(0, 50)}...</p>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
-};
+}
 
 export default DraftListPage;

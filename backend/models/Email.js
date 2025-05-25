@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const emailSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User.js', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   assunto: { type: String, required: true, maxlength: 255 },
   emailRemetente: { type: String, required: true },
   emailDestinatario: {
@@ -14,4 +14,4 @@ const emailSchema = new Schema({
   dataEnvio: { type: Date, default: Date.now }
 });
 
-export default model('Email.js', emailSchema);
+export default model('Email', emailSchema);

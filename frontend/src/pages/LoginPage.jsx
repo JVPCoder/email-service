@@ -1,91 +1,112 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Toast from '../components/Toast';
+import Loader from '../components/Loader';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [nome, setNome] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
 
   const navigate = useNavigate();
 
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post('http://localhost:8080/api/login', { email, senha });
       localStorage.setItem('token', res.data.token);
+      showToast('Login realizado com sucesso!');
       navigate('/');
-    } catch (err) {
-      alert('Erro ao fazer login');
+    } catch {
+      showToast('Erro ao fazer login.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await axios.post('http://localhost:8080/api/usuarios', { nome, email, senha });
-      alert('Cadastro realizado com sucesso! Faça login.');
+      showToast('Cadastro realizado com sucesso! Faça login.');
       setIsRegistering(false);
       setNome('');
       setEmail('');
       setSenha('');
-    } catch (err) {
-      alert('Erro ao realizar cadastro');
+    } catch {
+      showToast('Erro ao realizar cadastro.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={isRegistering ? handleRegister : handleLogin}
-        className="bg-white p-8 rounded shadow-md space-y-4 w-80"
-      >
-        <h2 className="text-2xl font-bold mb-4">
-          {isRegistering ? 'Registrar-se' : 'Login'}
-        </h2>
+      {toastMessage && <Toast message={toastMessage} type={toastType} />}
+      {loading ? <Loader /> : (
+        <form
+          onSubmit={isRegistering ? handleRegister : handleLogin}
+          className="bg-white p-8 rounded shadow-md space-y-4 w-80 transition transform hover:scale-105"
+        >
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">
+            {isRegistering ? 'Registrar-se' : 'Login'}
+          </h2>
 
-        {isRegistering && (
+          {isRegistering && (
+            <input
+              type="text"
+              placeholder="Nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="border rounded px-3 py-2 w-full"
+            />
+          )}
+
           <input
-            type="text"
-            placeholder="Nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="border rounded px-3 py-2 w-full"
           />
-        )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-        />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            className="border rounded px-3 py-2 w-full"
+          />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-        />
+          <button
+            type="submit"
+            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded w-full transition"
+          >
+            {isRegistering ? 'Cadastrar' : 'Entrar'}
+          </button>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded w-full"
-        >
-          {isRegistering ? 'Cadastrar' : 'Entrar'}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsRegistering(!isRegistering)}
-          className="text-blue-500 hover:underline block text-center"
-        >
-          {isRegistering ? 'Fazer Login' : 'Não tem conta ? Registre-se'}
-        </button>
-      </form>
+          <button
+            type="button"
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="text-red-700 hover:text-red-800 underline block text-center transition"
+          >
+            {isRegistering ? 'Já tenho conta. Fazer Login' : 'Não tem conta? Registre-se'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

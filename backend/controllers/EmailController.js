@@ -13,9 +13,9 @@ export async function sendEmail(req, res) {
 
   try {
     const email = new Email({
-      userId: req.userId,
+      userId: req.user.id,
       assunto,
-      emailRemetente: req.userId,
+      emailRemetente: req.user.email,
       emailDestinatario,
       corpo
     });
@@ -35,16 +35,14 @@ export async function sendEmail(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao enviar email:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function sendEmailFromDraft(req, res) {
   try {
-    const draft = await _findOne({ _id: req.params.id, userId: req.userId });
+    const draft = await Draft.findOne({ _id: req.params.id, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -58,9 +56,9 @@ export async function sendEmailFromDraft(req, res) {
     }
 
     const email = new Email({
-      userId: req.userId,
+      userId: req.user.id,
       assunto: draft.assunto,
-      emailRemetente: req.userId,
+      emailRemetente: req.user.email,
       emailDestinatario: draft.emailDestinatario,
       corpo: draft.corpo
     });
@@ -80,16 +78,14 @@ export async function sendEmailFromDraft(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao enviar email do rascunho:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function markAsRead(req, res) {
   try {
-    const email = await findOne({ _id: req.params.id, userId: req.userId });
+    const email = await Email.findOne({ _id: req.params.id, userId: req.user.id });
 
     if (!email) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
@@ -111,20 +107,14 @@ export async function markAsRead(req, res) {
       }
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao marcar email como lido:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
 
 export async function getAllEmails(req, res) {
   try {
-    const emails = await find({ userId: req.userId });
-
-    if (!emails.length) {
-      return res.status(404).json({ mensagem: "Email não encontrado" });
-    }
+    const emails = await Email.find({ userId: req.user.id });
 
     res.status(200).json({
       mensagem: "Email encontrado",
@@ -139,9 +129,7 @@ export async function getAllEmails(req, res) {
       }))
     });
   } catch (err) {
-    res.status(500).json({
-      mensagem: "Erro interno do servidor",
-      erro: err.message
-    });
+    console.error('Erro ao buscar emails:', err.message);
+    res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }

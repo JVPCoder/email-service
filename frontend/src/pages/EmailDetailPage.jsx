@@ -1,58 +1,54 @@
 import { useEffect, useState } from 'react';
-import api from '../services/api.js';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import Loader from '../components/Loader';
+import Toast from '../components/Toast';
 
-const EmailDetailPage = () => {
+function EmailDetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
 
   useEffect(() => {
     const fetchEmail = async () => {
       try {
-        // Buscar o e-mail
-        const response = await api.put(`/emails/${id}`);
-        setEmail(response.data.email);
-        setSuccess('E-mail marcado como lido');
+        const token = localStorage.getItem('token');
+        const res = await axios.put(`http://localhost:8080/api/emails/${id}`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setEmail(res.data.email);
       } catch (err) {
-        setError('Erro ao carregar e-mail');
+        showToast('Erro ao buscar email.', 'error');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchEmail();
   }, [id]);
 
-  const handleBack = () => {
-    navigate('/');
-  };
+  if (loading) return <Loader />;
+
+  if (!email) return <p>Email não encontrado.</p>;
 
   return (
-    <div>
-      <h2>Detalhes do E-mail</h2>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-
-      {email ? (
-        <div>
-          <p><strong>Assunto:</strong> {email.assunto}</p>
-          <p><strong>De:</strong> {email.emailRemetente}</p>
-          <p><strong>Para:</strong> {email.emailDestinatario}</p>
-          <p><strong>Status:</strong> {email.status}</p>
-          <p><strong>Data:</strong> {email.dataEnvio}</p>
-          <p><strong>Corpo:</strong></p>
-          <p>{email.corpo}</p>
-        </div>
-      ) : (
-        <p>Carregando e-mail...</p>
-      )}
-
-      <button onClick={handleBack}>Voltar</button>
+    <div className="min-h-screen bg-gray-100 p-8">
+      {toastMessage && <Toast message={toastMessage} type={toastType} />}
+      <h2 className="text-3xl font-bold mb-4 text-gray-900">{email.assunto}</h2>
+      <p className="text-gray-600 mb-2">De: {email.emailRemetente}</p>
+      <p className="text-gray-600 mb-2">Para: {email.emailDestinatario}</p>
+      <p className="text-gray-500">{email.corpo}</p>
+      <p className="text-gray-400 text-sm mt-4">{email.dataEnvio}</p>
     </div>
   );
-};
+}
 
 export default EmailDetailPage;

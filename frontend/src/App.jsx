@@ -2,14 +2,14 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
 import EmailListPage from './pages/EmailListPage.jsx';
 import EmailDetailPage from './pages/EmailDetailPage.jsx';
-import DraftPage from './pages/DraftPage.jsx';
+import NewEmailPage from './pages/NewEmailPage.jsx';
 import DraftListPage from './pages/DraftListPage.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import Navbar from './components/Navbar.jsx';
 
 function App() {
   const location = useLocation();
-  
+
   const hideNavbar = location.pathname === '/login';
 
   return (
@@ -30,9 +30,9 @@ function App() {
           </PrivateRoute>
         } />
 
-        <Route path="/draft" element={
+        <Route path="/newEmail" element={
           <PrivateRoute>
-            <DraftPage />
+            <NewEmailPage />
           </PrivateRoute>
         } />
 
