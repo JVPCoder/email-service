@@ -84,7 +84,7 @@ Este é um projeto acadêmico desenvolvido para a disciplina de **Tecnologia Cli
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/seu-repo.git
+git clone https://github.com/JVPCoder/email-service.git
 
 # Acesse o backend
 cd backend
