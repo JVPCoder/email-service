@@ -85,7 +85,7 @@ export async function sendEmailFromDraft(req, res) {
 
 export async function markAsRead(req, res) {
   try {
-    const email = await Email.findOne({ _id: req.params.id, userId: req.user.id });
+    const email = await Email.findOne({ _id: req.params.id, emailDestinatario: req.user.email });
 
     if (!email) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
@@ -114,7 +114,7 @@ export async function markAsRead(req, res) {
 
 export async function getAllEmails(req, res) {
   try {
-    const emails = await Email.find({ userId: req.user.id });
+    const emails = await Email.find({ emailDestinatario: req.user.email });
 
     res.status(200).json({
       mensagem: "Email encontrado",

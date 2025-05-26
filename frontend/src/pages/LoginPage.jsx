@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Toast from '../components/Toast';
 import Loader from '../components/Loader';
+import { AuthContext } from '../context/AuthContext';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,7 +14,14 @@ function LoginPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');   // ✅ Redireciona se já está logado
+    }
+  }, [user, navigate]);
 
   const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
@@ -26,9 +34,9 @@ function LoginPage() {
     setLoading(true);
     try {
       const res = await axios.post('http://localhost:8080/api/login', { email, senha });
-      localStorage.setItem('token', res.data.token);
+      login(res.data.token, res.data.usuario);
       showToast('Login realizado com sucesso!');
-      navigate('/');
+      // ✅ Não precisa navigate aqui: o useEffect redireciona automaticamente
     } catch {
       showToast('Erro ao fazer login.', 'error');
     } finally {
@@ -59,7 +67,7 @@ function LoginPage() {
       {loading ? <Loader /> : (
         <form
           onSubmit={isRegistering ? handleRegister : handleLogin}
-          className="bg-white p-8 rounded shadow-md space-y-4 w-80 transition transform hover:scale-105"
+          className="bg-white p-8 rounded shadow-md space-y-4 w-80"
         >
           <h2 className="text-2xl font-bold mb-4 text-gray-900">
             {isRegistering ? 'Registrar-se' : 'Login'}

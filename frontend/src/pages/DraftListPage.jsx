@@ -13,7 +13,7 @@ function DraftListPage() {
   const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
     setToastType(type);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 1000);
   };
 
   useEffect(() => {
@@ -47,13 +47,13 @@ function DraftListPage() {
         <div className="grid gap-4">
           {drafts.map(draft => (
             <Link
-              key={draft.rascunhoId}
-              to={`/draft/${draft.rascunhoId}`}
-              className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition transform"
+              key={draft.rascunhold}
+              to={`/draft/${draft.rascunhold}`}
+              className="block bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-xl hover:scale-[0.99] transition-transform duration-300 ease-in-out"
             >
               <h3 className="text-xl font-semibold text-gray-800">{draft.assunto || '(Sem assunto)'}</h3>
-              <p className="text-gray-600">Para: {draft.emailDestinatario || '(Sem destinatário)'}</p>
-              <p className="text-gray-400 text-sm mt-2">{draft.corpo.slice(0, 50)}...</p>
+              <p className="text-gray-600">Para: <span className="font-medium">{draft.emailDestinatario || '(Sem destinatário)'}</span></p>
+              <p className="text-gray-400 text-xs mt-2">{draft.corpo.slice(0, 50)}...</p>
             </Link>
           ))}
         </div>

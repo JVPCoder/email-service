@@ -13,7 +13,7 @@ function EmailListPage() {
   const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
     setToastType(type);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 1000);
   };
 
   useEffect(() => {
@@ -24,7 +24,7 @@ function EmailListPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmails(res.data.emails);
-      } catch (err) {
+      } catch {
         showToast('Erro ao buscar emails.', 'error');
       } finally {
         setLoading(false);
@@ -46,7 +46,7 @@ function EmailListPage() {
           <Link
             key={email.emailId}
             to={`/emails/${email.emailId}`}
-            className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition transform"
+            className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-[0.99] transition-transform"
           >
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xl font-semibold text-gray-800">{email.assunto}</h3>

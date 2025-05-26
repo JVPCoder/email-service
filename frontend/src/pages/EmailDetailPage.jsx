@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Loader from '../components/Loader';
 import Toast from '../components/Toast';
@@ -10,6 +10,8 @@ function EmailDetailPage() {
   const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+
+  const navigate = useNavigate();
 
   const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
@@ -25,8 +27,8 @@ function EmailDetailPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmail(res.data.email);
-      } catch (err) {
-        showToast('Erro ao buscar email.', 'error');
+      } catch {
+        showToast('Erro ao carregar email.', 'error');
       } finally {
         setLoading(false);
       }
@@ -35,19 +37,70 @@ function EmailDetailPage() {
     fetchEmail();
   }, [id]);
 
+  const handleResponder = () => {
+    navigate('/newEmail', {
+      state: {
+        assunto: `Re: ${email.assunto}`,
+        emailDestinatario: email.emailRemetente,
+        corpo: `\n\n--- Mensagem original ---\n${email.corpo}`
+      }
+    });
+  };
+
   if (loading) return <Loader />;
 
-  if (!email) return <p>Email não encontrado.</p>;
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      {toastMessage && <Toast message={toastMessage} type={toastType} />}
-      <h2 className="text-3xl font-bold mb-4 text-gray-900">{email.assunto}</h2>
-      <p className="text-gray-600 mb-2">De: {email.emailRemetente}</p>
-      <p className="text-gray-600 mb-2">Para: {email.emailDestinatario}</p>
-      <p className="text-gray-500">{email.corpo}</p>
-      <p className="text-gray-400 text-sm mt-4">{email.dataEnvio}</p>
+  <div className="min-h-screen bg-gray-100 flex items-center justify-center p-8">
+    {toastMessage && <Toast message={toastMessage} type={toastType} />}
+    <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w">
+      <h1 className="text-3xl font-bold text-red-700 mb-6">Detalhes do Email</h1>
+
+      <div className="space-y-4">
+        <div>
+          <span className="text-gray-600 font-semibold">Assunto:</span>
+          <p className="text-lg text-gray-900">{email.assunto}</p>
+        </div>
+
+        <div className="flex gap-50">
+          <div>
+            <span className="text-gray-600 font-semibold">De:</span>
+            <p className="text-gray-800">{email.emailRemetente}</p>
+          </div>
+          <div>
+            <span className="text-gray-600 font-semibold">Para:</span>
+            <p className="text-gray-800">{email.emailDestinatario}</p>
+          </div>
+        </div>
+
+        <div className="flex gap-55">
+          <div>
+            <span className="text-gray-600 font-semibold">Status:</span>
+            <span className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold
+              ${email.status === 'lido' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+              {email.status}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600 font-semibold">Data de Envio:</span>
+            <p className="text-gray-800">{email.dataEnvio}</p>
+          </div>
+        </div>
+
+        <div>
+          <span className="text-gray-600 font-semibold">Mensagem:</span>
+          <p className="text-gray-800 whitespace-pre-line border-t pt-4">{email.corpo}</p>
+        </div>
+
+        <button
+            onClick={handleResponder}
+            className="mt-6 ml-auto bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded text-lg font-semibold transition transform hover:scale-98"
+        >
+          Responder
+        </button>
+      </div>
     </div>
+  </div>
+
   );
 }
 
