@@ -3,7 +3,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = function(knex) {
+export function up(knex) {
     return knex.schema.createTable('emails', (table) => {
       table.increments('id').primary();
       table.integer('user_id').unsigned().notNullable()
@@ -16,12 +16,12 @@ exports.up = function(knex) {
       table.timestamp('data_envio').defaultTo(knex.fn.now());
       table.timestamps(true, true);
     });
-  };
+  }
 
   /**
    * @param { import("knex").Knex } knex
    * @returns { Promise<void> }
    */
-  exports.down = function(knex) {
+  export function down(knex) {
     return knex.schema.dropTable('emails');
-  };
+  }
