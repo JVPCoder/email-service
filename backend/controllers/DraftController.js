@@ -1,4 +1,5 @@
 import Draft from '../models/Draft.js';
+import { getNextId } from '../utils/getNextId.js';
 
 export async function createDraft(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;
@@ -11,7 +12,9 @@ export async function createDraft(req, res) {
   }
 
   try {
+    const draftId = await getNextId('draftId');
     const draft = new Draft({
+      draftId,
       userId: req.user.id,
       assunto,
       emailDestinatario,
@@ -23,7 +26,7 @@ export async function createDraft(req, res) {
     res.status(200).json({
       mensagem: "Rascunho criado",
       rascunho: {
-        rascunhold: draft._id,
+        draftId: draft.draftId,
         assunto: draft.assunto,
         emailDestinatario: draft.emailDestinatario,
         corpo: draft.corpo
@@ -53,7 +56,7 @@ export async function updateDraft(req, res) {
   }
 
   try {
-    const draft = await Draft.findOne({ _id: rascunhoId, userId: req.user.id });
+    const draft = await Draft.findOne({ draftId: rascunhoId, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -68,7 +71,7 @@ export async function updateDraft(req, res) {
     res.status(200).json({
       mensagem: "Rascunho salvo com sucesso",
       rascunho: {
-        rascunhold: draft._id,
+        draftId: draft.draftId,
         assunto: draft.assunto,
         emailDestinatario: draft.emailDestinatario,
         corpo: draft.corpo
@@ -82,7 +85,7 @@ export async function updateDraft(req, res) {
 
 export async function getDraft(req, res) {
   try {
-    const draft = await Draft.findOne({ _id: req.params.id, userId: req.user.id });
+    const draft = await Draft.findOne({ draftId: req.params.id, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
@@ -91,7 +94,7 @@ export async function getDraft(req, res) {
     res.status(200).json({
       mensagem: "Rascunho localizado",
       rascunho: {
-        rascunhold: draft._id,
+        draftId: draft.draftId,
         assunto: draft.assunto,
         emailDestinatario: draft.emailDestinatario,
         corpo: draft.corpo
@@ -108,9 +111,9 @@ export async function getAllDrafts(req, res) {
     const drafts = await Draft.find({ userId: req.user.id });
 
     res.status(200).json({
-      mensagem: "Rascunho localizado",
+      mensagem: "Rascunhos localizados",
       rascunhos: drafts.map(d => ({
-        rascunhold: d._id,
+        draftId: d.draftId,
         assunto: d.assunto,
         emailDestinatario: d.emailDestinatario,
         corpo: d.corpo
@@ -124,7 +127,7 @@ export async function getAllDrafts(req, res) {
 
 export async function deleteDraft(req, res) {
   try {
-    const draft = await Draft.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    const draft = await Draft.findOneAndDelete({ draftId: req.params.id, userId: req.user.id });
 
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });

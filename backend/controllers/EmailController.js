@@ -1,5 +1,6 @@
 import Email from '../models/Email.js';
 import Draft from '../models/Draft.js';
+import { getNextId } from '../utils/getNextId.js';
 
 export async function sendEmail(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;
@@ -12,7 +13,9 @@ export async function sendEmail(req, res) {
   }
 
   try {
+    const emailId = await getNextId('emailId'); // novo ID incremental
     const email = new Email({
+      emailId,
       userId: req.user.id,
       assunto,
       emailRemetente: req.user.email,
@@ -25,7 +28,7 @@ export async function sendEmail(req, res) {
     res.status(200).json({
       mensagem: "Email enviado com sucesso",
       email: {
-        emailId: email._id,
+        emailId: email.emailId,
         assunto: email.assunto,
         emailRemetente: email.emailRemetente,
         emailDestinatario: email.emailDestinatario,
@@ -42,8 +45,7 @@ export async function sendEmail(req, res) {
 
 export async function sendEmailFromDraft(req, res) {
   try {
-    const draft = await Draft.findOne({ _id: req.params.id, userId: req.user.id });
-
+    const draft = await Draft.findOne({ draftId: req.params.id, userId: req.user.id });
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
     }
@@ -55,7 +57,9 @@ export async function sendEmailFromDraft(req, res) {
       });
     }
 
+    const emailId = await getNextId('emailId');
     const email = new Email({
+      emailId,
       userId: req.user.id,
       assunto: draft.assunto,
       emailRemetente: req.user.email,
@@ -68,7 +72,7 @@ export async function sendEmailFromDraft(req, res) {
     res.status(200).json({
       mensagem: "Email enviado com sucesso",
       email: {
-        emailId: email._id,
+        emailId: email.emailId,
         assunto: email.assunto,
         emailRemetente: email.emailRemetente,
         emailDestinatario: email.emailDestinatario,
@@ -85,8 +89,7 @@ export async function sendEmailFromDraft(req, res) {
 
 export async function markAsRead(req, res) {
   try {
-    const email = await Email.findOne({ _id: req.params.id, emailDestinatario: req.user.email });
-
+    const email = await Email.findOne({ emailId: req.params.id, emailDestinatario: req.user.email });
     if (!email) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
     }
@@ -97,7 +100,7 @@ export async function markAsRead(req, res) {
     res.status(200).json({
       mensagem: "Email marcado como lido",
       email: {
-        emailId: email._id,
+        emailId: email.emailId,
         assunto: email.assunto,
         emailRemetente: email.emailRemetente,
         emailDestinatario: email.emailDestinatario,
@@ -115,11 +118,10 @@ export async function markAsRead(req, res) {
 export async function getAllEmails(req, res) {
   try {
     const emails = await Email.find({ emailDestinatario: req.user.email });
-
     res.status(200).json({
-      mensagem: "Email encontrado",
+      mensagem: "Emails encontrados",
       emails: emails.map(e => ({
-        emailId: e._id,
+        emailId: e.emailId,
         assunto: e.assunto,
         emailRemetente: e.emailRemetente,
         emailDestinatario: e.emailDestinatario,
