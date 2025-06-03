@@ -4,7 +4,6 @@ import { register, login, getUser, updateUser, deleteUser } from '../controllers
 import auth from '../middlewares/auth.js';
 import bcrypt from 'bcryptjs';
 const { hash, compare } = bcrypt;
-import User from '../models/User.js';
 import methodNotAllowed from '../middlewares/methodNotAllowed.js';
 
 // Usuarios Endpoints

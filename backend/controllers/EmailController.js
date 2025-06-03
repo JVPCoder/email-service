@@ -1,7 +1,6 @@
-import Email from '../models/Email.js';
-import Draft from '../models/Draft.js';
-import { getNextId } from '../utils/getNextId.js';
+import db from '../db.js';
 
+// ENVIAR EMAIL
 export async function sendEmail(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;
 
@@ -13,28 +12,26 @@ export async function sendEmail(req, res) {
   }
 
   try {
-    const emailId = await getNextId('emailId'); // novo ID incremental
-    const email = new Email({
-      emailId,
-      userId: req.user.id,
-      assunto,
-      emailRemetente: req.user.email,
-      emailDestinatario,
-      corpo
-    });
-
-    await email.save();
+    const [novoEmail] = await db('emails')
+      .insert({
+        user_id: req.user.id,
+        assunto,
+        email_remetente: req.user.email,
+        email_destinatario: emailDestinatario,
+        corpo
+      })
+      .returning(['id', 'assunto', 'email_remetente', 'email_destinatario', 'corpo', 'status', 'data_envio']);
 
     res.status(200).json({
       mensagem: "Email enviado com sucesso",
       email: {
-        emailId: email.emailId,
-        assunto: email.assunto,
-        emailRemetente: email.emailRemetente,
-        emailDestinatario: email.emailDestinatario,
-        corpo: email.corpo,
-        status: email.status,
-        dataEnvio: email.dataEnvio.toISOString().slice(0,10).split('-').reverse().join('-')
+        emailId: novoEmail.id,
+        assunto: novoEmail.assunto,
+        emailRemetente: novoEmail.email_remetente,
+        emailDestinatario: novoEmail.email_destinatario,
+        corpo: novoEmail.corpo,
+        status: novoEmail.status,
+        dataEnvio: novoEmail.data_envio.toISOString().slice(0,10).split('-').reverse().join('-')
       }
     });
   } catch (err) {
@@ -43,42 +40,44 @@ export async function sendEmail(req, res) {
   }
 }
 
+// ENVIAR EMAIL A PARTIR DE RASCUNHO
 export async function sendEmailFromDraft(req, res) {
   try {
-    const draft = await Draft.findOne({ draftId: req.params.id, userId: req.user.id });
+    const draft = await db('drafts')
+      .where({ id: req.params.id, user_id: req.user.id })
+      .first();
+
     if (!draft) {
       return res.status(404).json({ mensagem: "Rascunho não encontrado" });
     }
 
-    if (!draft.assunto || !draft.emailDestinatario || !draft.corpo) {
+    if (!draft.assunto || !draft.email_destinatario || !draft.corpo) {
       return res.status(400).json({
         mensagem: "Erro na requisição",
         erro: "Rascunho incompleto"
       });
     }
 
-    const emailId = await getNextId('emailId');
-    const email = new Email({
-      emailId,
-      userId: req.user.id,
-      assunto: draft.assunto,
-      emailRemetente: req.user.email,
-      emailDestinatario: draft.emailDestinatario,
-      corpo: draft.corpo
-    });
-
-    await email.save();
+    const [novoEmail] = await db('emails')
+      .insert({
+        user_id: req.user.id,
+        assunto: draft.assunto,
+        email_remetente: req.user.email,
+        email_destinatario: draft.email_destinatario,
+        corpo: draft.corpo
+      })
+      .returning(['id', 'assunto', 'email_remetente', 'email_destinatario', 'corpo', 'status', 'data_envio']);
 
     res.status(200).json({
       mensagem: "Email enviado com sucesso",
       email: {
-        emailId: email.emailId,
-        assunto: email.assunto,
-        emailRemetente: email.emailRemetente,
-        emailDestinatario: email.emailDestinatario,
-        corpo: email.corpo,
-        status: email.status,
-        dataEnvio: email.dataEnvio.toISOString().slice(0,10).split('-').reverse().join('-')
+        emailId: novoEmail.id,
+        assunto: novoEmail.assunto,
+        emailRemetente: novoEmail.email_remetente,
+        emailDestinatario: novoEmail.email_destinatario,
+        corpo: novoEmail.corpo,
+        status: novoEmail.status,
+        dataEnvio: novoEmail.data_envio.toISOString().slice(0,10).split('-').reverse().join('-')
       }
     });
   } catch (err) {
@@ -87,26 +86,35 @@ export async function sendEmailFromDraft(req, res) {
   }
 }
 
+// MARCAR EMAIL COMO LIDO
 export async function markAsRead(req, res) {
   try {
-    const email = await Email.findOne({ emailId: req.params.id, emailDestinatario: req.user.email });
+    const email = await db('emails')
+      .where({ id: req.params.id, email_destinatario: req.user.email })
+      .first();
+
     if (!email) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
     }
 
-    email.status = "lido";
-    await email.save();
+    await db('emails')
+      .where({ id: req.params.id, email_destinatario: req.user.email })
+      .update({ status: 'lido' });
+
+    const emailAtualizado = await db('emails')
+      .where({ id: req.params.id, email_destinatario: req.user.email })
+      .first();
 
     res.status(200).json({
       mensagem: "Email marcado como lido",
       email: {
-        emailId: email.emailId,
-        assunto: email.assunto,
-        emailRemetente: email.emailRemetente,
-        emailDestinatario: email.emailDestinatario,
-        corpo: email.corpo,
-        status: email.status,
-        dataEnvio: email.dataEnvio.toISOString().slice(0,10).split('-').reverse().join('-')
+        emailId: emailAtualizado.id,
+        assunto: emailAtualizado.assunto,
+        emailRemetente: emailAtualizado.email_remetente,
+        emailDestinatario: emailAtualizado.email_destinatario,
+        corpo: emailAtualizado.corpo,
+        status: emailAtualizado.status,
+        dataEnvio: emailAtualizado.data_envio.toISOString().slice(0,10).split('-').reverse().join('-')
       }
     });
   } catch (err) {
@@ -115,19 +123,23 @@ export async function markAsRead(req, res) {
   }
 }
 
+// OBTER TODOS OS EMAILS RECEBIDOS
 export async function getAllEmails(req, res) {
   try {
-    const emails = await Email.find({ emailDestinatario: req.user.email });
+    const emails = await db('emails')
+      .where({ email_destinatario: req.user.email })
+      .select('id', 'assunto', 'email_remetente', 'email_destinatario', 'corpo', 'status', 'data_envio');
+
     res.status(200).json({
       mensagem: "Emails encontrados",
       emails: emails.map(e => ({
-        emailId: e.emailId,
+        emailId: e.id,
         assunto: e.assunto,
-        emailRemetente: e.emailRemetente,
-        emailDestinatario: e.emailDestinatario,
+        emailRemetente: e.email_remetente,
+        emailDestinatario: e.email_destinatario,
         corpo: e.corpo,
         status: e.status,
-        dataEnvio: e.dataEnvio.toISOString().slice(0,10).split('-').reverse().join('-')
+        dataEnvio: e.data_envio.toISOString().slice(0,10).split('-').reverse().join('-')
       }))
     });
   } catch (err) {
