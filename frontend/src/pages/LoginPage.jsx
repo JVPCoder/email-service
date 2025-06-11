@@ -4,6 +4,7 @@ import axios from 'axios';
 import Toast from '../components/Toast';
 import Loader from '../components/Loader';
 import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,7 +34,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8080/api/login', { email, senha });
+      const res = await api.post('../api/login', { email, senha });
       login(res.data.token, res.data.usuario);
       showToast('Login realizado com sucesso!');
       navigate('/');
@@ -48,7 +49,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:8080/api/usuarios', { nome, email, senha });
+      await api.post('../api/usuarios', { nome, email, senha });
       showToast('Cadastro realizado com sucesso! Faça login.');
       setIsRegistering(false);
       setNome('');
