@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from  '../services/api';
 import Loader from '../components/Loader';
 import Toast from '../components/Toast';
 
@@ -23,7 +24,7 @@ function EmailDetailPage() {
     const fetchEmail = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.put(`http://localhost:8080/api/emails/${id}`, {}, {
+        const res = await api.put(`../api/emails/${id}`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmail(res.data.email);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import api from '../services/api';
 import { motion } from 'framer-motion';
 import Toast from '../components/Toast';
 import Loader from '../components/Loader';
@@ -34,7 +35,7 @@ function NewEmailPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8080/api/emails', { assunto, emailDestinatario, corpo }, {
+      await api.post('../api/emails', { assunto, emailDestinatario, corpo }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       showToast('Email enviado com sucesso!');
@@ -51,7 +52,7 @@ function NewEmailPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8080/api/rascunhos', { assunto, emailDestinatario, corpo }, {
+      await api.post('../api/rascunhos', { assunto, emailDestinatario, corpo }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       showToast('Rascunho salvo!');
