@@ -9,15 +9,18 @@ import Navbar from './components/Navbar.jsx';
 
 function App() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<PrivateRoute><EmailListPage /></PrivateRoute>} />
-        <Route path="/emails/:id" element={<PrivateRoute><EmailDetailPage /></PrivateRoute>} />
-        <Route path="/newEmail" element={<PrivateRoute><NewEmailPage /></PrivateRoute>} />
-        <Route path="/drafts" element={<PrivateRoute><DraftListPage /></PrivateRoute>} />
-      </Routes>
+
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<PrivateRoute><EmailListPage /></PrivateRoute>} />
+          <Route path="/emails/:id" element={<PrivateRoute><EmailDetailPage /></PrivateRoute>} />
+          <Route path="/newEmail" element={<PrivateRoute><NewEmailPage /></PrivateRoute>} />
+          <Route path="/drafts" element={<PrivateRoute><DraftListPage /></PrivateRoute>} />
+        </Routes>
+      </div>
     </div>
   );
 }

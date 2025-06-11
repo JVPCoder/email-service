@@ -14,14 +14,14 @@ function LoginPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  const { login, user } = useContext(AuthContext);
+  const { login, token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/');   // ✅ Redireciona se já está logado
+    if (token) {
+      navigate('/');
     }
-  }, [user, navigate]);
+  }, [token, navigate]);
 
   const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
@@ -36,7 +36,7 @@ function LoginPage() {
       const res = await axios.post('http://localhost:8080/api/login', { email, senha });
       login(res.data.token, res.data.usuario);
       showToast('Login realizado com sucesso!');
-      // ✅ Não precisa navigate aqui: o useEffect redireciona automaticamente
+      navigate('/');
     } catch {
       showToast('Erro ao fazer login.', 'error');
     } finally {
