@@ -1,12 +1,12 @@
-import db from '../db.js'; // Conexão Knex
+import db from '../db.js';
 
-// CRIAR RASCUNHO
+// ➕ Criar Rascunho
 export async function createDraft(req, res) {
   const { assunto, emailDestinatario, corpo } = req.body;
 
   if (!assunto && !emailDestinatario && !corpo) {
     return res.status(400).json({
-      mensagem: 'Erro ao cadastrar usuario',
+      mensagem: 'Erro ao cadastrar rascunho',
       erro: 'Pelo menos um campo deve ser preenchido'
     });
   }
@@ -36,27 +36,21 @@ export async function createDraft(req, res) {
   }
 }
 
-// ATUALIZAR RASCUNHO
+// ✏️ Atualizar Rascunho por ID
 export async function updateDraft(req, res) {
-  const { rascunhoId, assunto, emailDestinatario, corpo } = req.body;
-
-  if (!rascunhoId) {
-    return res.status(400).json({
-      mensagem: 'Erro ao cadastrar usuario',
-      erro: 'rascunhoId é obrigatório'
-    });
-  }
+  const draftId = req.params.id;
+  const { assunto, emailDestinatario, corpo } = req.body;
 
   if (!assunto && !emailDestinatario && !corpo) {
     return res.status(400).json({
-      mensagem: 'Erro ao cadastrar usuario',
+      mensagem: 'Erro na requisição',
       erro: 'Pelo menos um campo deve ser preenchido'
     });
   }
 
   try {
     const draft = await db('drafts')
-      .where({ id: rascunhoId, user_id: req.user.id })
+      .where({ id: draftId, user_id: req.user.id })
       .first();
 
     if (!draft) {
@@ -64,7 +58,7 @@ export async function updateDraft(req, res) {
     }
 
     await db('drafts')
-      .where({ id: rascunhoId, user_id: req.user.id })
+      .where({ id: draftId, user_id: req.user.id })
       .update({
         assunto: assunto || draft.assunto,
         email_destinatario: emailDestinatario || draft.email_destinatario,
@@ -72,7 +66,7 @@ export async function updateDraft(req, res) {
       });
 
     const rascunhoAtualizado = await db('drafts')
-      .where({ id: rascunhoId, user_id: req.user.id })
+      .where({ id: draftId, user_id: req.user.id })
       .first();
 
     res.status(200).json({
@@ -90,7 +84,7 @@ export async function updateDraft(req, res) {
   }
 }
 
-// OBTER RASCUNHO POR ID
+// 🔍 Obter Rascunho por ID
 export async function getDraft(req, res) {
   try {
     const draft = await db('drafts')
@@ -116,7 +110,7 @@ export async function getDraft(req, res) {
   }
 }
 
-// OBTER TODOS OS RASCUNHOS DO USUÁRIO
+// 📄 Obter Todos os Rascunhos do Usuário
 export async function getAllDrafts(req, res) {
   try {
     const drafts = await db('drafts')
@@ -138,7 +132,7 @@ export async function getAllDrafts(req, res) {
   }
 }
 
-// DELETAR RASCUNHO
+// 🗑️ Deletar Rascunho por ID
 export async function deleteDraft(req, res) {
   try {
     const draft = await db('drafts')

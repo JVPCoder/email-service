@@ -5,6 +5,7 @@ import NewEmailPage from './pages/NewEmailPage.jsx';
 import DraftListPage from './pages/DraftListPage.jsx';
 import EmailDetailPage from './pages/EmailDetailPage.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
+import DraftDetailPage from './pages/DraftDetailPage.jsx';
 import Navbar from './components/Navbar.jsx';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/emails/:id" element={<PrivateRoute><EmailDetailPage /></PrivateRoute>} />
           <Route path="/newEmail" element={<PrivateRoute><NewEmailPage /></PrivateRoute>} />
           <Route path="/drafts" element={<PrivateRoute><DraftListPage /></PrivateRoute>} />
+          <Route path="/draft/:id" element={<PrivateRoute><DraftDetailPage /></PrivateRoute>} />
         </Routes>
       </div>
     </div>

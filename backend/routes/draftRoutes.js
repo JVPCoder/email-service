@@ -1,26 +1,34 @@
 import { Router } from 'express';
 const router = Router();
-import { createDraft, updateDraft, getDraft, getAllDrafts, deleteDraft } from '../controllers/DraftController.js';
+
+import {
+  createDraft,
+  updateDraft,
+  getDraft,
+  getAllDrafts,
+  deleteDraft
+} from '../controllers/DraftController.js';
+
 import auth from '../middlewares/auth.js';
 import methodNotAllowed from '../middlewares/methodNotAllowed.js';
 
-// Criar rascunho
+// ➕ Criar rascunho
 router.post('/rascunhos', auth, createDraft);
 
-// Atualizar rascunho
-router.put('/rascunhos', auth, updateDraft);
+// ✏️ Atualizar rascunho por ID
+router.put('/rascunhos/:id', auth, updateDraft);
 
-// Encontrar rascunho por ID
+// 🔍 Buscar rascunho por ID
 router.get('/rascunhos/:id', auth, getDraft);
 
-// Listar todos os rascunhos
+// 📄 Listar todos os rascunhos
 router.get('/rascunhos', auth, getAllDrafts);
 
-// Deletar rascunho
+// 🗑️ Deletar rascunho
 router.delete('/rascunhos/:id', auth, deleteDraft);
 
-// Proteção contra métodos não permitidos
-router.all('/rascunhos', methodNotAllowed(['POST', 'PUT', 'GET']));
-router.all('/rascunhos/:id', methodNotAllowed(['GET', 'DELETE']));
+// 🚫 Proteger contra métodos não permitidos
+router.all('/rascunhos', methodNotAllowed(['POST', 'GET']));
+router.all('/rascunhos/:id', methodNotAllowed(['GET', 'PUT', 'DELETE']));
 
 export default router;

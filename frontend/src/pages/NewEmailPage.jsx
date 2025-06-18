@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import api from '../services/api';
 import { motion } from 'framer-motion';
 import Toast from '../components/Toast';
@@ -133,7 +132,7 @@ function NewEmailPage() {
 
               <button
                 onClick={handleEnviar}
-                className="bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded text-lg font-semibold transition transform hover:scale-98 w-full"
+                className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded text-lg font-semibold transition transform hover:scale-98 w-full"
               >
                 Enviar Email
               </button>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 import Loader from '../components/Loader';
@@ -48,10 +47,10 @@ function DraftListPage() {
         <div className="grid gap-4">
           {drafts.map(draft => (
             <Link
-              key={draft.rascunhold}
-              to={`/draft/${draft.rascunhold}`}
-              className="block bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-xl hover:scale-[0.99] transition-transform duration-300 ease-in-out"
-            >
+                  key={draft.draftId}
+                  to={`/draft/${draft.draftId}`}
+                  className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-95 transition"
+                >
               <h3 className="text-xl font-semibold text-gray-800">{draft.assunto || '(Sem assunto)'}</h3>
               <p className="text-gray-600">Para: <span className="font-medium">{draft.emailDestinatario || '(Sem destinatário)'}</span></p>
               <p className="text-gray-400 text-xs mt-2">{draft.corpo.slice(0, 50)}...</p>
