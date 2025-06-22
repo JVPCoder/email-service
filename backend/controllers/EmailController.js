@@ -86,8 +86,8 @@ export async function sendEmailFromDraft(req, res) {
   }
 }
 
-// MARCAR EMAIL COMO LIDO
-export async function markAsRead(req, res) {
+// BUSCAR E MARCAR EMAIL COMO LIDO
+export async function getEmail(req, res) {
   try {
     const email = await db('emails')
       .where({ id: req.params.id, email_destinatario: req.user.email })
@@ -97,13 +97,17 @@ export async function markAsRead(req, res) {
       return res.status(404).json({ mensagem: "Email não encontrado" });
     }
 
-    await db('emails')
-      .where({ id: req.params.id, email_destinatario: req.user.email })
-      .update({ status: 'lido' });
+    // Marcar como lido se não estiver
+    if (email.status !== 'lido') {
+      await db('emails')
+        .where({ id: req.params.id, email_destinatario: req.user.email })
+        .update({ status: 'lido' });
+    }
 
-    const emailAtualizado = await db('emails')
-      .where({ id: req.params.id, email_destinatario: req.user.email })
-      .first();
+    const emailAtualizado = {
+      ...email,
+      status: 'lido'
+    };
 
     res.status(200).json({
       mensagem: "Email marcado como lido",
@@ -114,14 +118,15 @@ export async function markAsRead(req, res) {
         emailDestinatario: emailAtualizado.email_destinatario,
         corpo: emailAtualizado.corpo,
         status: emailAtualizado.status,
-        dataEnvio: emailAtualizado.data_envio.toISOString().slice(0,10).split('-').reverse().join('-')
+        dataEnvio: new Date(emailAtualizado.data_envio).toISOString().slice(0,10).split('-').reverse().join('-')
       }
     });
   } catch (err) {
-    console.error('Erro ao marcar email como lido:', err.message);
+    console.error('Erro ao buscar e marcar email como lido:', err.message);
     res.status(500).json({ mensagem: "Erro interno do servidor", erro: err.message });
   }
 }
+
 
 // OBTER TODOS OS EMAILS RECEBIDOS
 export async function getAllEmails(req, res) {

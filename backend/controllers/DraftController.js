@@ -24,7 +24,7 @@ export async function createDraft(req, res) {
     res.status(200).json({
       mensagem: 'Rascunho criado',
       rascunho: {
-        draftId: novoRascunho.id,
+        rascunhoId: novoRascunho.id,
         assunto: novoRascunho.assunto,
         emailDestinatario: novoRascunho.email_destinatario,
         corpo: novoRascunho.corpo
@@ -72,7 +72,7 @@ export async function updateDraft(req, res) {
     res.status(200).json({
       mensagem: 'Rascunho salvo com sucesso',
       rascunho: {
-        draftId: rascunhoAtualizado.id,
+        rascunhoId: rascunhoAtualizado.id,
         assunto: rascunhoAtualizado.assunto,
         emailDestinatario: rascunhoAtualizado.email_destinatario,
         corpo: rascunhoAtualizado.corpo
@@ -98,7 +98,7 @@ export async function getDraft(req, res) {
     res.status(200).json({
       mensagem: 'Rascunho localizado',
       rascunho: {
-        draftId: draft.id,
+        rascunhoId: draft.id,
         assunto: draft.assunto,
         emailDestinatario: draft.email_destinatario,
         corpo: draft.corpo
@@ -120,7 +120,7 @@ export async function getAllDrafts(req, res) {
     res.status(200).json({
       mensagem: 'Rascunhos localizados',
       rascunhos: drafts.map(d => ({
-        draftId: d.id,
+        rascunhoId: d.id,
         assunto: d.assunto,
         emailDestinatario: d.email_destinatario,
         corpo: d.corpo

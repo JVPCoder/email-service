@@ -23,7 +23,7 @@ function EmailDetailPage() {
     const fetchEmail = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.put(`../api/emails/${id}`, {}, {
+        const res = await api.get(`../api/emails/${id}`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmail(res.data.email);
