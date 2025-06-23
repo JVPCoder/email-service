@@ -47,8 +47,8 @@ function DraftListPage() {
         <div className="grid gap-4">
           {drafts.map(draft => (
             <Link
-                  key={draft.draftId}
-                  to={`/draft/${draft.draftId}`}
+                  key={draft.rascunhoId}
+                  to={`/draft/${draft.rascunhoId}`}
                   className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-95 transition"
                 >
               <h3 className="text-xl font-semibold text-gray-800">{draft.assunto || '(Sem assunto)'}</h3>

@@ -38,7 +38,7 @@ export async function createDraft(req, res) {
 
 // ✏️ Atualizar Rascunho por ID
 export async function updateDraft(req, res) {
-  const draftId = req.params.id;
+  const rascunhoId = req.params.id;
   const { assunto, emailDestinatario, corpo } = req.body;
 
   if (!assunto && !emailDestinatario && !corpo) {
@@ -50,7 +50,7 @@ export async function updateDraft(req, res) {
 
   try {
     const draft = await db('drafts')
-      .where({ id: draftId, user_id: req.user.id })
+      .where({ id: rascunhoId, user_id: req.user.id })
       .first();
 
     if (!draft) {
@@ -58,7 +58,7 @@ export async function updateDraft(req, res) {
     }
 
     await db('drafts')
-      .where({ id: draftId, user_id: req.user.id })
+      .where({ id: rascunhoId, user_id: req.user.id })
       .update({
         assunto: assunto || draft.assunto,
         email_destinatario: emailDestinatario || draft.email_destinatario,
@@ -66,7 +66,7 @@ export async function updateDraft(req, res) {
       });
 
     const rascunhoAtualizado = await db('drafts')
-      .where({ id: draftId, user_id: req.user.id })
+      .where({ id: rascunhoId, user_id: req.user.id })
       .first();
 
     res.status(200).json({
