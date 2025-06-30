@@ -138,3 +138,23 @@ export async function deleteUser(req, res) {
     res.status(500).json({ mensagem: 'Erro interno do servidor', erro: err.message });
   }
 }
+
+
+// GET ALL USERS ADMIN
+
+export async function getActiveUsers(req, res) {
+  const FIVE_MINUTES_AGO = new Date(Date.now() - 5 * 60 * 1000); // últimos 5 minutos
+
+  try {
+    const ativos = await db('sessions')
+      .join('users', 'users.id', '=', 'sessions.user_id')
+      .where('last_active', '>=', FIVE_MINUTES_AGO)
+      .select('users.id', 'users.nome', 'users.email', 'sessions.last_active');
+
+    res.status(200).json({ usuarios: ativos });
+  } catch (err) {
+    console.error('Erro ao buscar usuários ativos:', err.message);
+    res.status(500).json({ mensagem: "Erro interno", erro: err.message });
+  }
+}
+

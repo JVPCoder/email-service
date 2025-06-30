@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import db from '../db.js';
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -18,8 +19,16 @@ const auth = (req, res, next) => {
 
     req.user = {
       id: decoded.id,
-      email: decoded.email 
+      email: decoded.email,
     };
+
+    await db('sessions')
+      .insert({
+        user_id: req.user.id,
+        last_active: new Date(),
+      })
+      .onConflict('user_id')
+      .merge();
 
     next();
   } catch (err) {

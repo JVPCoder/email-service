@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { register, login, getUser, updateUser, deleteUser } from '../controllers/UserController.js';
+import { register, login, getUser, updateUser, deleteUser, getActiveUsers} from '../controllers/UserController.js';
 import auth from '../middlewares/auth.js';
 import bcrypt from 'bcryptjs';
 const { hash, compare } = bcrypt;
@@ -14,11 +14,17 @@ router.delete('/usuarios', auth, deleteUser);
 
 // Login/Logout de usuário
 router.post('/login', login);
-router.post('/logout', auth, (req, res) => {
-  console.log(`Usuário ${req.userId} fez logout.`);
-  res.status(200).json({
-    mensagem: 'Logout realizado com suscesso'
-  });
+router.post('/logout', auth, async (req, res) => {
+  try {
+    await db('sessions').where('user_id', req.user.id).del();
+
+    res.status(200).json({
+      mensagem: 'Logout realizado com sucesso',
+    });
+  } catch (err) {
+    console.error('Erro no logout:', err.message);
+    res.status(500).json({ mensagem: 'Erro interno no logout', erro: err.message });
+  }
 });
 
 // Obter perfil do usuário autenticado
@@ -44,6 +50,10 @@ router.get('/me', auth, async (req, res) => {
     });
   }
 });
+
+// Online Usuários
+router.get('/usuarios-ativos', getActiveUsers);
+
 
 // Proteção para métodos não permitidos
 router.all('/usuarios', methodNotAllowed(['POST', 'PUT', 'DELETE', 'GET']));
