@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
 import Loader from '../components/Loader';
 import Toast from '../components/Toast';
@@ -15,8 +15,7 @@ function ServerInfoPage() {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  const fetchAtivos = async () => {
-    setLoading(true);
+  const fetchAtivos = useCallback(async () => {
     try {
       const res = await api.get('../api/usuarios-ativos');
       setUsuarios(res.data.usuarios);
@@ -25,13 +24,17 @@ function ServerInfoPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchAtivos();
-    const interval = setInterval(fetchAtivos, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchAtivos(); // chamada inicial
+
+    const intervalId = setInterval(() => {
+      fetchAtivos();
+    }, 1000); // atualiza a cada 1s
+
+    return () => clearInterval(intervalId); // cleanup
+  }, [fetchAtivos]);
 
   const formatData = (timestamp) => {
     if (!timestamp) return '-';
@@ -71,16 +74,27 @@ function ServerInfoPage() {
                 <th className="text-left px-4 py-2 border-b">Última Atividade</th>
               </tr>
             </thead>
-            <tbody>
-              {usuarios.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border-b">{u.id}</td>
-                  <td className="px-4 py-2 border-b">{u.nome}</td>
-                  <td className="px-4 py-2 border-b">{u.email}</td>
-                  <td className="px-4 py-2 border-b">{formatData(u.last_active)}</td>
-                </tr>
-              ))}
-            </tbody>
+              <tbody>
+                {usuarios.map((u) => {
+                  const agora = Date.now();
+                  const ultimoAtivo = new Date(u.last_active).getTime();
+                  const minutosPassados = (agora - ultimoAtivo) / 60000;
+
+                  const iconeStatus = minutosPassados <= 2 ? '🟢' : '⚫';
+
+                  return (
+                    <tr key={u.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 border-b flex items-center gap-2">
+                        {iconeStatus}
+                        {u.id}
+                      </td>
+                      <td className="px-4 py-2 border-b">{u.nome}</td>
+                      <td className="px-4 py-2 border-b">{u.email}</td>
+                      <td className="px-4 py-2 border-b">{formatData(u.last_active)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
           </table>
         </div>
       )}
